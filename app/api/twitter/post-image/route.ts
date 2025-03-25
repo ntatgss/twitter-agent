@@ -236,22 +236,19 @@ export async function POST(req: Request) {
       );
     }
 
-    // Roll random first
-    const shouldIncludeImage = Math.random() < 0.33;
     let imageUrl;
-
-    if (shouldIncludeImage) {
-      try {
-        imageUrl = await generateAIImage(tweetText);
-      } catch (error) {
-        console.error('Error generating image:', error);
-      }
+    try {
+      imageUrl = await generateAIImage(tweetText);
+    } catch (error) {
+      console.error('Error generating image:', error);
+      return NextResponse.json(
+        { error: "Failed to generate image. Please try again." },
+        { status: 500 }
+      );
     }
 
-    // Post with image only if both random check passed AND image generation succeeded
-    const result = imageUrl ? 
-      await postTweet(tweetText, imageUrl) :
-      await postTweet(tweetText);
+    // Post with image
+    const result = await postTweet(tweetText, imageUrl);
 
     return NextResponse.json({ message: result });
   } catch (error: unknown) {
