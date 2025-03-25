@@ -93,7 +93,7 @@ async function generateTweetText(finalInstruction: string): Promise<string> {
 }
 
 // Function to post tweet on Twitter
-async function postTweet(tweetText: string, retryCount = 0): Promise<string> {
+async function postTweet(tweetText: string, retryCount = 0): Promise<{ id: string; url: string }> {
   try {
     // Check rate limit before proceeding
     if (!await checkRateLimit()) {
@@ -108,8 +108,13 @@ async function postTweet(tweetText: string, retryCount = 0): Promise<string> {
     }
 
     try {
+      // Get current user's ID first
+      const me = await twitterClient.v2.me();
       const tweet = await twitterClient.v2.tweet(tweetText);
-      return `Tweet posted with ID ${tweet.data.id}`;
+      return {
+        id: tweet.data.id,
+        url: `https://twitter.com/${me.data.id}/status/${tweet.data.id}`
+      };
     } catch (error: unknown) {
       if (error instanceof Error) {
         const twitterError = error as TwitterApiError;
@@ -199,7 +204,10 @@ export async function POST(req: Request) {
     }
 
     const result = await postTweet(tweetText);
-    return NextResponse.json({ message: result });
+    return NextResponse.json({ 
+      message: `Tweet posted successfully!`,
+      tweet: result
+    });
   } catch (error: unknown) {
     const errorResponse: TwitterErrorResponse = {
       code: 500,

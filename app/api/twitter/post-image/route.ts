@@ -92,7 +92,7 @@ async function checkRateLimit(): Promise<boolean> {
 }
 
 // Modify postTweet to handle image posting
-async function postTweet(tweetText: string, imageUrl?: string): Promise<string> {
+async function postTweet(tweetText: string, imageUrl?: string): Promise<{ id: string; url: string }> {
   try {
     // Check rate limit before proceeding
     if (!await checkRateLimit()) {
@@ -121,11 +121,16 @@ async function postTweet(tweetText: string, imageUrl?: string): Promise<string> 
       
       console.log('Posting tweet with media...');
       try {
+        // Get current user's ID first
+        const me = await twitterClient.v2.me();
         const tweet = await twitterClient.v2.tweet({
           text: tweetText,
           media: { media_ids: [mediaId] }
         });
-        return `Tweet posted with ID ${tweet.data.id}`;
+        return {
+          id: tweet.data.id,
+          url: `https://twitter.com/${me.data.id}/status/${tweet.data.id}`
+        };
       } catch (error: unknown) {
         interface TwitterApiError {
           code?: number;
@@ -162,8 +167,13 @@ async function postTweet(tweetText: string, imageUrl?: string): Promise<string> 
         }
       }
     } else {
+      // Get current user's ID first
+      const me = await twitterClient.v2.me();
       const tweet = await twitterClient.v2.tweet(tweetText);
-      return `Tweet posted with ID ${tweet.data.id}`;
+      return {
+        id: tweet.data.id,
+        url: `https://twitter.com/${me.data.id}/status/${tweet.data.id}`
+      };
     }
   } catch (error: unknown) {
     interface TwitterApiError {
@@ -250,7 +260,10 @@ export async function POST(req: Request) {
     // Post with image
     const result = await postTweet(tweetText, imageUrl);
 
-    return NextResponse.json({ message: result });
+    return NextResponse.json({ 
+      message: `Tweet posted successfully!`,
+      tweet: result
+    });
   } catch (error: unknown) {
     interface TwitterErrorResponse {
       code: number;
