@@ -91,7 +91,6 @@ X_ACCESS_TOKEN=your_twitter_access_token
 X_ACCESS_TOKEN_SECRET=your_twitter_access_token_secret
 X_APP_CLIENT_ID=your_twitter_app_client_id
 X_APP_CLIENT_SECRET=your_twitter_app_client_secret
-TWITTER_POST_SECRET=your_custom_secret_key_for_api_auth
 ```
 
 4. Run the development server:
@@ -132,7 +131,7 @@ This project uses:
 
 Deploy your own Twitter Agent on Vercel:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyourusername%2Ftwitter-agent&env=OPENAI_API_KEY,X_BEARER_TOKEN,X_CONSUMER_KEY,X_CONSUMER_SECRET,X_ACCESS_TOKEN,X_ACCESS_TOKEN_SECRET,X_APP_CLIENT_ID,X_APP_CLIENT_SECRET,TWITTER_POST_SECRET)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyourusername%2Ftwitter-agent&env=OPENAI_API_KEY,X_BEARER_TOKEN,X_CONSUMER_KEY,X_CONSUMER_SECRET,X_ACCESS_TOKEN,X_ACCESS_TOKEN_SECRET,X_APP_CLIENT_ID,X_APP_CLIENT_SECRET)
 
 ## License
 
