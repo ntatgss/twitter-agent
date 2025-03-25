@@ -4,10 +4,10 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <main className="flex-grow container mx-auto px-4 py-12">
+      <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Hero Section */}
-          <div className="flex flex-col items-center text-center mb-16">
+          <div className="flex flex-col items-center text-center mb-12">
             <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mb-6">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -18,19 +18,19 @@ export default function Home() {
                 <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
               </svg>
             </div>
-            <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
               Twitter Agent
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl">
               An AI-powered application for generating and posting tweets with optional AI-generated images using OpenAI's GPT and DALL-E models.
             </p>
           </div>
 
           {/* Features Section */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold mb-8 text-center">Features</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+          <div className="mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">Features</h2>
+            <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+              <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md">
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -53,7 +53,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+              <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md">
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +76,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+              <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md">
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
