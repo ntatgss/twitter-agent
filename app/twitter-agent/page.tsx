@@ -1,22 +1,80 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+interface TwitterAccount {
+  username: string;
+  name: string;
+  profileImage: string;
+  description: string;
+  followers: number;
+  following: number;
+  tweets: number;
+  lastUpdated: number;
+}
+
+const CACHE_KEY = 'twitter_account_info';
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
 export default function TwitterPost() {
   const [instruction, setInstruction] = useState('');
-  const [secretKey, setSecretKey] = useState('');
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [includeImage, setIncludeImage] = useState(false);
+  const [account, setAccount] = useState<TwitterAccount | null>(null);
+  const [accountError, setAccountError] = useState('');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const isCacheValid = (cachedData: TwitterAccount): boolean => {
+    return Date.now() - cachedData.lastUpdated < CACHE_DURATION;
+  };
+
+  const fetchAccountInfo = async (forceRefresh = false) => {
+    try {
+      // Check cache first if not forcing refresh
+      if (!forceRefresh) {
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const parsedCache = JSON.parse(cachedData) as TwitterAccount;
+          if (isCacheValid(parsedCache)) {
+            setAccount(parsedCache);
+            return;
+          }
+        }
+      }
+
+      setIsRefreshing(true);
+      const response = await fetch('/api/twitter/me');
+      if (!response.ok) throw new Error('Failed to fetch account info');
+      const data = await response.json();
+      
+      // Add timestamp to the data
+      const accountData: TwitterAccount = {
+        ...data,
+        lastUpdated: Date.now()
+      };
+
+      // Update cache
+      localStorage.setItem(CACHE_KEY, JSON.stringify(accountData));
+      setAccount(accountData);
+    } catch (error) {
+      setAccountError('Failed to load Twitter account information');
+      console.error('Error fetching account info:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAccountInfo();
+  }, []);
+
+  const handleRefreshAccount = () => {
+    fetchAccountInfo(true);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    /* Commenting out authentication check
-    if (!secretKey.trim()) {
-      setStatus('Error: Secret key is required');
-      return;
-    }
-    */
     setIsLoading(true);
     setStatus('');
 
@@ -26,9 +84,6 @@ export default function TwitterPost() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          /* Commenting out authentication header
-          'Authorization': `Bearer ${secretKey.trim()}`
-          */
         },
         body: JSON.stringify({ instruction }),
       });
@@ -51,28 +106,79 @@ export default function TwitterPost() {
             Enter instructions below and let AI generate your tweet content
           </p>
         </div>
-        
-        {/* Authentication Section - Temporarily disabled */}
-        {/* 
-        <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Secret Key
-            </label>
-            <input
-              type="password"
-              value={secretKey}
-              onChange={(e) => setSecretKey(e.target.value)}
-              placeholder="Enter your secret key"
-              className="w-full p-2 border dark:border-gray-700 dark:bg-gray-700 dark:text-white rounded-md"
-              disabled={isLoading}
-            />
+
+        {/* Twitter Account Info */}
+        {account ? (
+          <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16">
+                  <img
+                    src={account.profileImage}
+                    alt={account.name}
+                    className="w-16 h-16 rounded-full"
+                  />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {account.name}
+                  </h2>
+                  <p className="text-gray-500 dark:text-gray-400">@{account.username}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                    {account.description}
+                  </p>
+                  <div className="flex space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span>{account.followers.toLocaleString()} followers</span>
+                    <span>{account.following.toLocaleString()} following</span>
+                    <span>{account.tweets.toLocaleString()} tweets</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleRefreshAccount}
+                disabled={isRefreshing}
+                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                title="Refresh account info"
+              >
+                <svg
+                  className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Last updated: {new Date(account.lastUpdated).toLocaleString()}
+            </div>
           </div>
-        </div>
-        */}
+        ) : accountError ? (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 rounded-lg">
+            <p className="text-red-800 dark:text-red-300">{accountError}</p>
+          </div>
+        ) : (
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg animate-pulse">
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+              <div className="flex-1">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mt-1"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mt-2"></div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tweet Form Section */}
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center space-x-2 mb-4">
               <label className="flex items-center cursor-pointer">
